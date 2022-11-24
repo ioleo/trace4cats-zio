@@ -1,16 +1,12 @@
 package trace4cats.zio
 
 import trace4cats.Span
-import zio.blocking.Blocking
-import zio.clock.Clock
-import zio.{Has, RIO}
+import zio.UIO
 
 trait ZIOTraceInstances {
   implicit val spannedRIOTrace: SpannedRIOTracer = new SpannedRIOTracer
 }
 
 trait ZIOHasTraceInstances {
-  implicit def spannedEnvRIOTrace[
-    R <: Clock with Blocking with Has[Span[RIO[Clock with Blocking, *]]]
-  ]: SpannedEnvRIOTracer[R] = new SpannedEnvRIOTracer[R]
+  implicit def spannedEnvRIOTrace[R <: Span[UIO[*]]]: SpannedEnvRIOTracer[R] = new SpannedEnvRIOTracer[R]
 }
