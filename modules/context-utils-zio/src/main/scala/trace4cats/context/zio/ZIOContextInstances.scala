@@ -47,7 +47,8 @@ trait ZIOContextInstancesLowPriority {
 
       def ask[C2 >: C]: ZIO[R1, E, C2] = ZIO.service[C].provideSomeLayer[R1](ZLayer.succeed(ev1))
       def local[A](fa: ZIO[R1, E, A])(f: C => C): ZIO[R1, E, A] =
-        fa.provideSomeEnvironment[R1](_.update[Any](f.asInstanceOf[Any => Any]))
+        fa.provideSomeEnvironment[R1](_.update[R1](f.asInstanceOf[R1 => R1]))
+
       def lift[A](la: ZIO[R, E, A]): ZIO[R1, E, A] = la.provideSomeLayer[R1](ZLayer.succeed(ev1))
       def provide[A](fa: ZIO[R1, E, A])(c: C): ZIO[R, E, A] = fa.provideSomeLayer[R](ZLayer.succeed(c))
     }

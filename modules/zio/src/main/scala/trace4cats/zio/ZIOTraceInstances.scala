@@ -1,12 +1,12 @@
 package trace4cats.zio
 
-import trace4cats.Span
-import zio.UIO
+//import trace4cats.Span
+//import zio.Task
 
 trait ZIOTraceInstances {
   implicit val spannedRIOTrace: SpannedRIOTracer = new SpannedRIOTracer
 }
 
 trait ZIOHasTraceInstances {
-  implicit def spannedEnvRIOTrace[R <: Span[UIO[*]]]: SpannedEnvRIOTracer[R] = new SpannedEnvRIOTracer[R]
+  // implicit def spannedEnvRIOTrace[R <: Span[Task[*]]]: SpannedEnvRIOTracer[R] = new SpannedEnvRIOTracer[R]
 }

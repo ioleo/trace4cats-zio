@@ -1,6 +1,6 @@
 package trace4cats.context.zio
 
-import _root_.zio.{Has, ZEnv, ZIO}
+import _root_.zio.ZIO
 import trace4cats.context._
 import trace4cats.context.zio.instances._
 
@@ -9,16 +9,15 @@ import trace4cats.context.zio.instances._
 // In user code the instances must be summoned explicitly via `zioProvideSome`.
 object ZIOLayeredProvideInstanceSummonTest {
   class R()
-  type ZR = Has[R]
   type E
-  type Low[x] = ZIO[ZEnv, E, x]
+  type Low[x] = ZIO[Any, E, x]
 
-  type F[x] = ZIO[ZEnv with ZR, E, x]
+  type F[x] = ZIO[R, E, x]
   implicitly[Ask[F, R]]
   implicitly[Local[F, R]]
   implicitly[Provide[Low, F, R]]
 
-  type G[x] = ZIO[ZR with ZEnv, E, x]
+  type G[x] = ZIO[R, E, x]
   implicitly[Ask[G, R]]
   implicitly[Local[G, R]]
   implicitly[Provide[Low, G, R]]

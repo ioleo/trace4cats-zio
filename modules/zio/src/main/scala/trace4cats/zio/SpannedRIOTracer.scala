@@ -4,7 +4,7 @@ import cats.syntax.show._
 import trace4cats.model.{AttributeValue, SpanKind, SpanStatus, TraceHeaders}
 import trace4cats.{ErrorHandler, Span, ToHeaders, Trace}
 import zio.interop.catz._
-import zio.{RIO, Tag, Task, ZIO}
+import zio.{RIO, Tag, Task, ZEnvironment, ZIO}
 
 class SpannedRIOTracer extends Trace[SpannedRIO] {
   override def put(key: String, value: AttributeValue): SpannedRIO[Unit] =
@@ -14,7 +14,7 @@ class SpannedRIOTracer extends Trace[SpannedRIO] {
     ZIO.service[Span[Task]].flatMap(_.putAll(fields: _*))
 
   override def span[A](name: String, kind: SpanKind, errorHandler: ErrorHandler)(fa: SpannedRIO[A]): SpannedRIO[A] =
-    ZIO.service[Span[Task]].flatMap(_.child(name, kind, errorHandler).use(fa.provide))
+    ZIO.service[Span[Task]].flatMap(_.child(name, kind, errorHandler).use(s => fa.provideEnvironment(ZEnvironment(s))))
 
   override def headers(toHeaders: ToHeaders): SpannedRIO[TraceHeaders] =
     ZIO.service[Span[Task]].map { s =>
@@ -43,7 +43,7 @@ class SpannedRIOTracer extends Trace[SpannedRIO] {
 
       override def span[A](name: String, kind: SpanKind, errorHandler: ErrorHandler)(fa: RIO[R, A]): RIO[R, A] =
         ZIO.service[R].flatMap { r =>
-          f(r).child(name, kind, errorHandler).use(s => fa.provide(g(r, s)))
+          f(r).child(name, kind, errorHandler).use(s => fa.provideEnvironment(ZEnvironment(g(r, s))))
         }
 
       override def headers(toHeaders: ToHeaders): RIO[R, TraceHeaders] =
